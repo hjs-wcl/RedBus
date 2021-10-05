@@ -12,9 +12,21 @@ namespace Redbus
             Token = Guid.NewGuid();
             EventItemType = eventItemType;
         }
-        
-        public Guid Token { get; }
 
-        public Type EventItemType { get; }
+        private Guid _token;
+
+        public Guid Token
+        {
+            get { return _token; }
+            set { _token = value; }
+        }
+
+        private Type _EventItemType;
+
+        public Type EventItemType
+        {
+            get { return _EventItemType; }
+            set { _EventItemType = value; }
+        }
     }
 }

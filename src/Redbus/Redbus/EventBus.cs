@@ -14,6 +14,7 @@ namespace Redbus
     public class EventBus : IEventBus
     {
         private readonly IEventBusConfiguration _eventBusConfiguration;
+
         public EventBus(IEventBusConfiguration configuration = null)
         {
             _eventBusConfiguration = configuration ?? EventBusConfiguration.Default;
@@ -29,7 +30,7 @@ namespace Redbus
         public SubscriptionToken Subscribe<TEventBase>(Action<TEventBase> action) where TEventBase : EventBase
         {
             if (action == null)
-                throw new ArgumentNullException(nameof(action));
+                throw new ArgumentNullException();
 
             lock (SubscriptionsLock)
             {
@@ -49,7 +50,7 @@ namespace Redbus
         public void Unsubscribe(SubscriptionToken token)
         {
             if (token == null)
-                throw new ArgumentNullException(nameof(token));
+                throw new ArgumentNullException();
 
             lock (SubscriptionsLock)
             {
@@ -71,7 +72,7 @@ namespace Redbus
         public void Publish<TEventBase>(TEventBase eventItem) where TEventBase : EventBase
         {
             if (eventItem == null)
-                throw new ArgumentNullException(nameof(eventItem));
+                throw new ArgumentNullException();
 
             var allSubscriptions = new List<ISubscription>();
             lock (SubscriptionsLock)
@@ -119,6 +120,7 @@ namespace Redbus
         }
 
         #region PRIVATE METHODS
+
         private void PublishAsyncInternal<TEventBase>(TEventBase eventItem, AsyncCallback callback) where TEventBase : EventBase
         {
             Task<bool> publishTask = new Task<bool>(() =>
@@ -139,7 +141,11 @@ namespace Redbus
                     tcs.TrySetCanceled();
                 else
                     tcs.TrySetResult(t.Result);
-                callback?.Invoke(tcs.Task);
+
+                if (callback != null)
+                {
+                    callback.Invoke(tcs.Task);
+                }
             }, TaskScheduler.Default);
         }
 
